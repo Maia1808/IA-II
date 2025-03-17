@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import math
+import csv
 from queue import PriorityQueue
 
 
@@ -131,6 +132,7 @@ class TempleSimulado:
         return mejor_ruta, mejor_costo
 
 
+# Crear almacén
 almacen = MatrizAlmacen(11, 13)
 
 posiciones_estantes = [
@@ -152,12 +154,42 @@ for fila_inicio, columna_inicio in posiciones_estantes:
 print("Matriz del almacén con productos:")
 almacen.mostrar_matriz()
 
-# Lista de productos a buscar
-productos = [22, 2, 12]
 
-# Ejecutar el temple simulado
-temple = TempleSimulado(almacen, productos)
-mejor_ruta, mejor_costo = temple.temple_simulado()
+def leer_productos_desde_csv(nombre_archivo):
+    listas_productos = []
+    try:
+        with open(nombre_archivo, newline="") as archivo_csv:
+            lector = csv.reader(archivo_csv)
+            for fila in lector:
+                if fila:  # Verifica que la fila no esté vacía
+                    productos = list(map(int, fila))
+                    listas_productos.append(productos)
+    except FileNotFoundError:
+        print(f"Error: No se encontró el archivo '{nombre_archivo}'")
+    except ValueError:
+        print(
+            "Error: Asegúrate de que el archivo contenga solo números separados por comas."
+        )
+    return listas_productos
 
-print(f"\nMejor ruta encontrada: {mejor_ruta}")
-print(f"Costo de la mejor ruta: {mejor_costo}")
+
+# Leer listas de productos desde el archivo CSV
+listas_productos = leer_productos_desde_csv("ordenes.csv")
+if not listas_productos:
+    print("No se encontraron listas de productos en el archivo. Saliendo...")
+    exit()
+
+# Procesar cada lista de productos
+resumen = []
+for i, productos in enumerate(listas_productos, start=1):
+    print(f"\nProcesando lista de productos {i}: {productos}")
+    temple = TempleSimulado(almacen, productos)
+    mejor_ruta, mejor_costo = temple.temple_simulado()
+    print(f"Mejor ruta encontrada: {mejor_ruta}")
+    print(f"Costo de la mejor ruta: {mejor_costo}")
+    resumen.append((i, mejor_ruta, mejor_costo))
+
+# Mostrar resumen final
+print("\nResumen final:")
+for i, ruta, costo in resumen:
+    print(f"Lista {i} - Ruta: {ruta} - Costo: {costo}")
