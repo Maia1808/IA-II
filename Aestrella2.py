@@ -29,8 +29,32 @@ class AEstrella:
                 return (fila, columna + 1)  # Derecha
         return None
 
-    def calcular_ruta_con_costos(self, inicio, objetivo):
-        """Método para calcular la ruta del montacargas y su costo, basándose en A*."""
+    def buscar_camino(self, objetivos):
+        if isinstance(objetivos, tuple):  # Si es un solo objetivo, convertirlo en lista
+            objetivos = [objetivos]
+        
+        camino_total = []
+        costo_total = 0
+        actual = self.inicio
+        caminos = []
+
+        for objetivo in objetivos:
+            destino = self.encontrar_casilla_adyacente(objetivo)
+            if not destino:
+                print(f"No se encontró una casilla accesible para el objetivo {objetivo}")
+                continue
+            
+            camino, costo = self.algoritmo_a_estrella(actual, destino)
+            if camino:
+                camino = [tuple(map(int, paso)) for paso in camino]  # Convertir np.int64 a int
+                caminos.append(camino)
+                camino_total.extend(camino)
+                costo_total += costo
+                actual = destino
+        
+        return caminos, costo_total
+
+    def algoritmo_a_estrella(self, inicio, objetivo):
         frontera = []
         heapq.heappush(frontera, (0, inicio))
         visitados = {inicio: None}
@@ -60,34 +84,26 @@ class AEstrella:
         camino.reverse()
         return camino
     
-    def detectar_colision(self, camino_1, camino_2):
-        """Detectar si hay colisión entre las rutas de los montacargas"""
-        for paso_1 in camino_1:
-            for paso_2 in camino_2:
-                if paso_1 == paso_2:
-                    return True
-        return False
-    
     def graficar_camino(self, caminos, objetivos_numeros):
         color_unico = 'green'  # Definir un color único para todos los caminos
         tablero_grafico = np.copy(self.tablero)
         fig, ax = plt.subplots()
-
+        
         # Unir todos los caminos en uno solo
         todos_los_pasos = []
         for camino in caminos:
             todos_los_pasos.extend(camino)
-
+        
         # Dibujar todos los pasos del camino con el mismo color
         for x, y in todos_los_pasos:
             ax.add_patch(plt.Rectangle((y, x), 1, 1, color=color_unico, alpha=0.5, edgecolor='black'))
-
+        
         # Dibujar la cuadrícula
         for i in range(tablero_grafico.shape[0] + 1):
             ax.axhline(i, color='black', lw=1)
         for j in range(tablero_grafico.shape[1] + 1):
             ax.axvline(j, color='black', lw=1)
-
+        
         # Numerar las casillas con obstáculos
         for i in range(tablero_grafico.shape[0]):
             for j in range(tablero_grafico.shape[1]):
@@ -101,3 +117,4 @@ class AEstrella:
         plt.gca().invert_yaxis()
         plt.title(titulo)
         plt.show()
+
