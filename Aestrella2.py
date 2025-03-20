@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class AEstrella:
-    def __init__(self, tablero, inicio=(5, 0)):
+    def __init__(self, tablero, inicio=(4, 0)):
         self.tablero = tablero
         self.inicio = inicio
         self.direcciones = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # Movimientos: derecha, izquierda, abajo, arriba
