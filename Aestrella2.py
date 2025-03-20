@@ -117,4 +117,3 @@ class AEstrella:
         plt.gca().invert_yaxis()
         plt.title(titulo)
         plt.show()
-
